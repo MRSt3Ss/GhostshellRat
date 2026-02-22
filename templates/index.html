@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 Android Notification Server</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 15px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .header {
+            background: #1e293b;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #334155;
+        }
+        
+        .title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .title i {
+            font-size: 32px;
+            color: #3b82f6;
+        }
+        
+        .title h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        /* Info Box */
+        .info-box {
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            border: 1px solid #334155;
+        }
+        
+        .info-box h3 {
+            color: #94a3b8;
+            font-size: 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .url-display {
+            background: #1e293b;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            border: 1px solid #334155;
+            word-break: break-all;
+        }
+        
+        .copy-btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .copy-btn:hover {
+            background: #2563eb;
+        }
+        
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .stat-card {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #3b82f6;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 5px;
+        }
+        
+        /* Notifications List */
+        .notifications {
+            background: #1e293b;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid #334155;
+        }
+        
+        .notif-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .notif-header h2 {
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .clear-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        
+        .notif-item {
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #3b82f6;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .notif-time {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+        
+        .notif-sender {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .sender-badge {
+            background: #3b82f6;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .notif-content {
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+        
+        .notif-ip {
+            font-size: 11px;
+            color: #64748b;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #64748b;
+        }
+        
+        .empty-state i {
+            font-size: 50px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        /* Connection status */
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 12px;
+            padding: 5px 10px;
+            background: #1e293b;
+            border-radius: 20px;
+            margin-left: 10px;
+        }
+        
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .dot.connected {
+            background: #22c55e;
+            box-shadow: 0 0 10px #22c55e;
+        }
+        
+        .dot.disconnected {
+            background: #ef4444;
+        }
+        
+        /* Mobile */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .stats { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="title">
+                <i class="fas fa-bell"></i>
+                <h1>Android Notification Server</h1>
+                <div class="status" id="connectionStatus">
+                    <span class="dot disconnected" id="statusDot"></span>
+                    <span id="statusText">Offline</span>
+                </div>
+            </div>
+            
+            <!-- INFO PENTING: URL BUAT ANDROID -->
+            <div class="info-box">
+                <h3><i class="fas fa-cloud-upload-alt"></i> URL UNTUK ANDROID APP</h3>
+                <div class="url-display" id="serverUrl">
+                    {{ server_url or 'https://nama-projek.up.railway.app' }}
+                </div>
+                <button class="copy-btn" onclick="copyUrl()">
+                    <i class="far fa-copy"></i> Copy URL
+                </button>
+                <p style="font-size: 12px; color: #94a3b8; margin-top: 10px;">
+                    ⚡ Pakai endpoint: <strong>/api/send-notification</strong>
+                </p>
+            </div>
+            
+            <!-- STATISTIK -->
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalNotif">0</div>
+                    <div class="stat-label">Total Notifikasi</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="todayNotif">0</div>
+                    <div class="stat-label">Hari Ini</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- DAFTAR NOTIFIKASI -->
+        <div class="notifications">
+            <div class="notif-header">
+                <h2><i class="fas fa-list"></i> Notifikasi Masuk</h2>
+                <button class="clear-btn" onclick="clearAll()">
+                    <i class="fas fa-trash"></i> Hapus Semua
+                </button>
+            </div>
+            
+            <div id="notifList">
+                <!-- Nanti diisi sama JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast notification -->
+    <div id="toast" style="position: fixed; bottom: 20px; right: 20px; background: #1e293b; color: white; padding: 12px 20px; border-radius: 8px; border-left: 4px solid #3b82f6; transform: translateX(400px); transition: 0.3s; box-shadow: 0 5px 20px rgba(0,0,0,0.5);">
+        <span id="toastMessage"></span>
+    </div>
+    
+    <!-- Socket.IO -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        // Koneksi ke server
+        const socket = io();
+        let notifications = [];
+        
+        // Update status koneksi
+        socket.on('connect', () => {
+            document.getElementById('statusDot').className = 'dot connected';
+            document.getElementById('statusText').innerText = 'Online';
+            showToast('✅ Terhubung ke server');
+        });
+        
+        socket.on('disconnect', () => {
+            document.getElementById('statusDot').className = 'dot disconnected';
+            document.getElementById('statusText').innerText = 'Offline';
+            showToast('❌ Server terputus', 'error');
+        });
+        
+        // Dapat notifikasi baru
+        socket.on('new_notification', (notif) => {
+            notifications.unshift(notif);
+            updateList();
+            showToast('📱 Notifikasi baru dari Android');
+            playSound();
+        });
+        
+        // Dapat semua notifikasi saat pertama buka
+        socket.on('server_info', (info) => {
+            loadNotifications();
+        });
+        
+        // Ambil semua notifikasi via REST API
+        function loadNotifications() {
+            fetch('/api/notifications')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        notifications = data.data;
+                        updateList();
+                    }
+                });
+        }
+        
+        // Update tampilan list
+        function updateList() {
+            const list = document.getElementById('notifList');
+            const total = document.getElementById('totalNotif');
+            const today = document.getElementById('todayNotif');
+            
+            // Update total
+            total.innerText = notifications.length;
+            
+            // Hitung hari ini
+            const todayCount = notifications.filter(n => {
+                return n.waktu.includes(new Date().toLocaleDateString('id'));
+            }).length;
+            today.innerText = todayCount;
+            
+            if (notifications.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>Belum ada notifikasi dari Android</p>
+                        <small style="color: #475569; margin-top: 10px; display: block;">
+                            Kirim notifikasi dari Android ke endpoint di atas
+                        </small>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '';
+            notifications.forEach(n => {
+                html += `
+                    <div class="notif-item">
+                        <div class="notif-time">
+                            <i class="far fa-clock"></i> ${n.waktu}
+                        </div>
+                        <div class="notif-sender">
+                            <span class="sender-badge">
+                                <i class="fas ${getIcon(n.dari)}"></i> ${n.dari}
+                            </span>
+                            <span style="color: #94a3b8; font-size: 12px;">
+                                <i class="fas fa-user"></i> ${n.pengirim}
+                            </span>
+                        </div>
+                        <div class="notif-content">
+                            ${n.konten}
+                        </div>
+                        <div class="notif-ip">
+                            <i class="fas fa-map-marker-alt"></i> IP: ${n.ip || 'Unknown'}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            list.innerHTML = html;
+        }
+        
+        // Hapus semua
+        function clearAll() {
+            if (confirm('Hapus semua notifikasi?')) {
+                fetch('/api/notifications/clear', { method: 'POST' })
+                    .then(() => {
+                        notifications = [];
+                        updateList();
+                        showToast('Semua notifikasi dihapus');
+                    });
+            }
+        }
+        
+        // Copy URL
+        function copyUrl() {
+            const url = document.getElementById('serverUrl').innerText;
+            navigator.clipboard.writeText(url + '/api/send-notification');
+            showToast('✅ URL berhasil dicopy!');
+        }
+        
+        // Toast
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').innerText = msg;
+            toast.style.transform = 'translateX(0)';
+            setTimeout(() => {
+                toast.style.transform = 'translateX(400px)';
+            }, 3000);
+        }
+        
+        // Icon berdasarkan type
+        function getIcon(type) {
+            type = (type || '').toLowerCase();
+            if (type.includes('error')) return 'fa-times-circle';
+            if (type.includes('warning')) return 'fa-exclamation-triangle';
+            if (type.includes('success')) return 'fa-check-circle';
+            return 'fa-bell';
+        }
+        
+        // Play sound (optional)
+        function playSound() {
+            try {
+                const audio = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+                audio.volume = 0.3;
+                audio.play();
+            } catch (e) {}
+        }
+        
+        // Auto refresh
+        setInterval(loadNotifications, 30000);
+        
+        // Load saat pertama
+        loadNotifications();
+    </script>
+</body>
+</html>
